@@ -16,7 +16,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20' # 已升级至 Node.js 20 以解决环境警告
 
     - name: Setup Java JDK
       uses: actions/setup-java@v4
@@ -26,16 +26,18 @@ jobs:
 
     - name: Install dependencies and build
       run: |
+        cd frontend # 进入前端文件夹执行依赖安装和打包
         npm install
         npm run build
 
     - name: Sync Capacitor Android
       run: |
+        cd frontend # 进入前端文件夹同步原生工程
         npx cap sync android
 
     - name: Build APK
       run: |
-        cd android
+        cd frontend/android # 进入前端里面的 android 文件夹执行编译
         chmod +x gradlew
         ./gradlew assembleDebug
 
@@ -43,4 +45,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: my-app-apk
-        path: android/app/build/outputs/apk/debug/app-debug.apk
+        # 更新了 APK 的寻找路径，加上了 frontend 前缀
+        path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
