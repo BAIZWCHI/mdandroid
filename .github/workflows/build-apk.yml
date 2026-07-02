@@ -16,7 +16,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22' # 已升级至 Node.js 22 以满足依赖要求
 
     - name: Setup Java JDK
       uses: actions/setup-java@v4
@@ -33,11 +33,14 @@ jobs:
     - name: Setup and Sync Capacitor
       run: |
         cd frontend
-        # 1. 强制安装 Capacitor 核心依赖和命令行工具
-        npm install @capacitor/core @capacitor/cli
-        # 2. 尝试添加 Android 原生平台文件夹（如果已经存在则跳过报错）
-        npx cap add android || true
-        # 3. 将前端网页代码同步到 Android 文件夹中
+        # 1. 安装核心、CLI 以及缺失的 Android 平台支持包
+        npm install @capacitor/core @capacitor/cli @capacitor/android
+        
+        # 2. 强制初始化 Capacitor 配置（赋予 App 名称和包名，并指定前端打包产物目录）
+        npx cap init "MDAndroidApp" "com.mdandroid.app" --web-dir dist
+        
+        # 3. 添加 Android 平台并同步代码
+        npx cap add android
         npx cap sync android
 
     - name: Build APK
